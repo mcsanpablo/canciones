@@ -129,21 +129,14 @@
         }
         .modal-content {
             position: relative;
-            width: 80%;
-            height: 80%;
-        }
-        .modal-content iframe {
             width: 100%;
             height: 100%;
-            border: none;
         }
         .modal-content img {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: contain; /* Para que la imagen se ajuste sin distorsionarse */
         }
-
-        /* Para el icono de la X */
         .close-button {
             position: absolute;
             top: 10px;
@@ -153,55 +146,21 @@
             font-size: 30px;
         }
 
+        /* Para el icono de la X */
         .close-button:hover {
             color: #fff;
         }
-
-        /* Estilo para el botón de pantalla completa */
-        .fullscreen-button {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background-color: #76c7c0;
-            color: white;
-            padding: 10px;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        .fullscreen-button:hover {
-            background-color: #5b9c94;
-        }
-
-        /* Para la X de salida en pantalla completa */
-        .exit-fullscreen {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 30px;
-            color: #ccc;
-            cursor: pointer;
-            z-index: 1000;
-            display: none; /* Solo se mostrará cuando esté en pantalla completa */
-        }
-
-        .exit-fullscreen:hover {
-            color: #fff;
-        }
-
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const songs = {
                 Alabanzas: [
-                    { name: "Cántico de Victoria", image: "https://via.placeholder.com/300", pdf: "path/to/cantico_de_victoria.pdf" },
-                    { name: "Dios es Amor", image: "https://via.placeholder.com/300", pdf: "path/to/dios_es_amor.pdf" }
+                    { name: "Cántico de Victoria", image: "https://via.placeholder.com/300" },
+                    { name: "Dios es Amor", image: "https://via.placeholder.com/300" }
                 ],
                 Adoraciones: [
-                    { name: "Santo por siempre", image: "imagen/letras/santoporsiempre.png", pdf: "imagen/santo por siempre.pdf" },
-                    { name: "Glorioso Rey", image: "https://via.placeholder.com/300", pdf: "path/to/glorioso_rey.pdf" }
+                    { name: "Santo por siempre", image: "imagen/letras/santo por siempre.jpg" },
+                    { name: "Glorioso Rey", image: "https://via.placeholder.com/300" }
                 ]
             };
 
@@ -218,91 +177,23 @@
             function openModal(song) {
                 const modal = document.getElementById('songModal');
                 const modalContent = modal.querySelector('.modal-content');
-                const exitButton = modal.querySelector('.exit-fullscreen'); // Obtener el botón de salida de pantalla completa
-                
-                if (song.pdf) {
-                    // Si hay un PDF, lo cargamos en el modal
-                    modalContent.innerHTML = `
-                        <span class="close-button" onclick="closeModal()">&#10006;</span>
-                        <button class="fullscreen-button" onclick="openFullscreen()">Ver en Pantalla Completa</button>
-                        <iframe src="${song.pdf}" type="application/pdf"></iframe>
-                    `;
-                } else if (song.image) {
-                    // Si hay una imagen, la cargamos en el modal
-                    modalContent.innerHTML = `
-                        <span class="close-button" onclick="closeModal()">&#10006;</span>
-                        <img src="${song.image}" alt="Imagen de ${song.name}">
-                    `;
-                }
-
+                modalContent.innerHTML = `
+                    <span class="close-button" onclick="closeModal()">&#10006;</span>
+                    <img src="${song.image}" alt="Imagen de ${song.name}">
+                `;
                 modal.style.display = 'flex';
+
                 // Ocultar el banner cuando se abre el modal
                 document.querySelector('.navbar').style.display = 'none';
-
-                // Mostrar el botón de salida de pantalla completa
-                exitButton.style.display = 'block';
-
-                // Agregar el evento de doble clic para salir de pantalla completa
-                modalContent.addEventListener('dblclick', closeFullscreen);
             }
 
             window.closeModal = function() {
                 const modal = document.getElementById('songModal');
                 modal.style.display = 'none';
+
                 // Mostrar el banner cuando se cierra el modal
                 document.querySelector('.navbar').style.display = 'flex';
-                // Ocultar el botón de salida de pantalla completa
-                const exitButton = modal.querySelector('.exit-fullscreen');
-                exitButton.style.display = 'none';
             };
-
-            // Función para pantalla completa
-            window.openFullscreen = function() {
-                const iframe = document.querySelector('.modal-content iframe');
-                const img = document.querySelector('.modal-content img');
-                
-                if (iframe) {
-                    if (iframe.requestFullscreen) {
-                        iframe.requestFullscreen();
-                    } else if (iframe.mozRequestFullScreen) { // Firefox
-                        iframe.mozRequestFullScreen();
-                    } else if (iframe.webkitRequestFullscreen) { // Chrome, Safari y Opera
-                        iframe.webkitRequestFullscreen();
-                    } else if (iframe.msRequestFullscreen) { // IE/Edge
-                        iframe.msRequestFullscreen();
-                    }
-                } else if (img) {
-                    if (img.requestFullscreen) {
-                        img.requestFullscreen();
-                    } else if (img.mozRequestFullScreen) { // Firefox
-                        img.mozRequestFullScreen();
-                    } else if (img.webkitRequestFullscreen) { // Chrome, Safari, Opera
-                        img.webkitRequestFullscreen();
-                    } else if (img.msRequestFullscreen) { // IE/Edge
-                        img.msRequestFullscreen();
-                    }
-                }
-            };
-
-            // Función para salir de pantalla completa
-            window.closeFullscreen = function() {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.mozCancelFullScreen) { // Firefox
-                    document.mozCancelFullScreen();
-                } else if (document.webkitExitFullscreen) { // Chrome, Safari, Opera
-                    document.webkitExitFullscreen();
-                } else if (document.msExitFullscreen) { // IE/Edge
-                    document.msExitFullscreen();
-                }
-            };
-
-            // Detectar la tecla "Esc" para salir de pantalla completa
-            window.addEventListener('keydown', (e) => {
-                if (e.key === "Escape") {
-                    closeFullscreen();
-                }
-            });
 
             function filterSongs() {
                 const searchQuery = document.getElementById('searchInput').value.toLowerCase();
@@ -328,46 +219,44 @@
             createSongList('Alabanzas', 'alabanzasList');
             createSongList('Adoraciones', 'adoracionesList');
 
+            // Event listeners para el buscador
             document.getElementById('searchInput').addEventListener('input', filterSongs);
             document.querySelector('.clear-search').addEventListener('click', clearSearch);
         });
     </script>
 </head>
 <body>
-
-    <!-- Barra de navegación -->
+    <!-- Menú de navegación -->
     <div class="navbar">
-        <a href="#">Inicio</a>
-        <a href="#">Alabanzas</a>
-        <a href="#">Adoraciones</a>
+        <a href="index.html">Inicio</a>
+        <a href="listas.php">Listas</a>
     </div>
 
+    <!-- Título -->
     <h1>Lista de Canciones</h1>
 
+    <!-- Buscador -->
     <div class="search-container">
-        <input id="searchInput" type="text" placeholder="Buscar canción..." />
-        <span class="clear-search" onclick="clearSearch()">&#10006;</span>
+        <input type="text" id="searchInput" placeholder="Buscar canción...">
+        <span class="clear-search" onclick="clearSearch()">&#10006;</span> <!-- Icono de la X -->
     </div>
 
+    <!-- Contenedor de listas -->
     <div class="song-container">
         <div class="song-category">
             <h2>Alabanzas</h2>
-            <ul id="alabanzasList" class="song-list"></ul>
+            <ul class="song-list" id="alabanzasList"></ul>
         </div>
 
         <div class="song-category">
             <h2>Adoraciones</h2>
-            <ul id="adoracionesList" class="song-list"></ul>
+            <ul class="song-list" id="adoracionesList"></ul>
         </div>
     </div>
 
-    <!-- Modal para mostrar la imagen o PDF -->
+    <!-- Modal -->
     <div id="songModal" class="modal">
-        <div class="modal-content">
-            <span class="exit-fullscreen" onclick="closeFullscreen()">&#10006;</span>
-            <!-- Contenido cargado dinámicamente -->
-        </div>
+        <div class="modal-content"></div>
     </div>
-
 </body>
 </html>
