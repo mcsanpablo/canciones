@@ -48,62 +48,59 @@
             text-shadow: 2px 2px 5px rgba(0, 123, 255, 0.5);
         }
 
-        /* Estilos para el buscador y el botón */
-        #search-bar {
-            margin-bottom: 20px;
-            padding: 10px 15px;
-            width: 100%;
-            max-width: 400px;
+        /* Contenedor del buscador */
+        .search-container {
+            text-align: center;
+            margin-top: 20px;
+            position: relative;
+            width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .search-container input {
+            padding: 10px;
             font-size: 16px;
+            border-radius: 5px;
             border: 1px solid #ccc;
-            border-radius: 25px;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+            width: 100%;
+            padding-right: 20px; /* Ajustado para acercar la X */
         }
-        #search-bar:focus {
-            border-color: #76c7c0;
-            outline: none;
-            box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
-        }
-        .add-song-button {
-            margin: 20px 0;
-            padding: 12px 20px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 25px;
+        .clear-search {
+            position: absolute;
+            top: 50%;
+            right: 5px; /* Ajustado para acercar más a la derecha */
+            transform: translateY(-50%);
             cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            color: #ccc;
+            font-size: 20px;
+            display: none;
         }
-        .add-song-button:hover {
-            background-color: #218838;
-            transform: translateY(-2px);
+        .search-container input:valid + .clear-search {
+            display: block;
         }
 
-        /* Contenedor de categorías de canciones */
-        .category-container {
+        /* Contenedor de listas */
+        .song-container {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
             margin-top: 20px;
         }
-        .category {
-            width: 30%;
-            padding: 15px;
+
+        /* Estilos para las listas de canciones */
+        .song-category {
+            padding: 20px;
             background-color: #383d47;
-            border-radius: 5px;
-            border: 1px solid #444;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            width: 300px;
         }
-        .category h2 {
-            text-align: center;
+        .song-category h2 {
             color: #76c7c0;
             margin-bottom: 10px;
+            text-align: center;
         }
-        /* Estilos para las listas de canciones */
         .song-list {
             list-style: none;
             padding: 0;
@@ -112,164 +109,265 @@
             margin: 10px 0;
             cursor: pointer;
             color: #76c7c0;
+            text-align: center;
         }
         .song-list li:hover {
             text-decoration: underline;
         }
-        .song-details {
+
+        /* Estilos para el modal */
+        .modal {
             display: none;
-            margin-top: 10px;
-            padding: 10px;
-            border: 1px solid #444;
-            background-color: #444;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
         }
-        pre {
-            font-family: monospace;
-            background-color: #333;
-            padding: 10px;
-            overflow-x: auto;
+        .modal-content {
+            position: relative;
+            width: 80%;
+            height: 80%;
         }
+        .modal-content iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .modal-content img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Para el icono de la X */
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            color: #ccc;
+            font-size: 30px;
+        }
+
+        .close-button:hover {
+            color: #fff;
+        }
+
+        /* Estilo para el botón de pantalla completa */
+        .fullscreen-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #76c7c0;
+            color: white;
+            padding: 10px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .fullscreen-button:hover {
+            background-color: #5b9c94;
+        }
+
+        /* Para la X de salida en pantalla completa */
+        .exit-fullscreen {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 30px;
+            color: #ccc;
+            cursor: pointer;
+            z-index: 1000;
+            display: none; /* Solo se mostrará cuando esté en pantalla completa */
+        }
+
+        .exit-fullscreen:hover {
+            color: #fff;
+        }
+
     </style>
     <script>
-        const notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-        let allSongs = [];
+        document.addEventListener('DOMContentLoaded', () => {
+            const songs = {
+                Alabanzas: [
+                    { name: "Cántico de Victoria", image: "https://via.placeholder.com/300", pdf: "path/to/cantico_de_victoria.pdf" },
+                    { name: "Dios es Amor", image: "https://via.placeholder.com/300", pdf: "path/to/dios_es_amor.pdf" }
+                ],
+                Adoraciones: [
+                    { name: "Santo por siempre", image: "imagen/letras/santoporsiempre.png", pdf: "imagen/letras/santo por siempre.pdf" },
+                    { name: "Glorioso Rey", image: "https://via.placeholder.com/300", pdf: "path/to/glorioso_rey.pdf" }
+                ]
+            };
 
-        // Cargar canciones desde el servidor
-        function loadSongs() {
-            fetch('load_songs.php')
-                .then(response => response.json())
-                .then(data => {
-                    allSongs = data; // Guardar todas las canciones
-                    data.forEach(song => {
-                        addSong(song.category, song.name, song.details);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error al cargar canciones:', error);
+            function createSongList(category, listId) {
+                const list = document.getElementById(listId);
+                songs[category].forEach(song => {
+                    const li = document.createElement('li');
+                    li.textContent = song.name;
+                    li.addEventListener('click', () => openModal(song));
+                    list.appendChild(li);
                 });
-        }
-
-        // Agregar canción a la lista
-        function addSong(category, name, details) {
-            const categoryList = document.getElementById(category);
-
-            if (!categoryList) return; // Si la categoría no existe, no hacer nada
-
-            const newSong = document.createElement('li');
-            newSong.textContent = name;
-            newSong.onclick = () => toggleDetails(name);
-
-            const songDetails = document.createElement('div');
-            songDetails.id = name;
-            songDetails.className = 'song-details';
-
-            const transposeControls = document.createElement('div');
-            transposeControls.className = 'transpose-controls';
-            transposeControls.innerHTML = `
-                <label for="transpose">Transponer:</label>
-                <button onclick="transposeWithin('${name}', -1)">-1</button>
-                <button onclick="transposeWithin('${name}', 1)">+1</button>
-            `;
-
-            const pre = document.createElement('pre');
-            pre.textContent = details;
-
-            songDetails.appendChild(transposeControls);
-            songDetails.appendChild(pre);
-
-            categoryList.appendChild(newSong);
-            categoryList.appendChild(songDetails);
-        }
-
-        // Mostrar u ocultar detalles de la canción
-        function toggleDetails(id) {
-            const details = document.getElementById(id);
-            if (details.style.display === "none" || details.style.display === "") {
-                details.style.display = "block";
-            } else {
-                details.style.display = "none";
             }
-        }
 
-        // Transponer acordes
-        function transposeWithin(songId, steps) {
-            const details = document.getElementById(songId);
-            const song = details.querySelector("pre");
-            const chordsRegex = /\b[A-G](#|b)?m?(sus\d|dim|aug|add\d|\d|7|9|13)?\b/g;
+            function openModal(song) {
+                const modal = document.getElementById('songModal');
+                const modalContent = modal.querySelector('.modal-content');
+                const exitButton = modal.querySelector('.exit-fullscreen'); // Obtener el botón de salida de pantalla completa
+                
+                if (song.pdf) {
+                    // Si hay un PDF, lo cargamos en el modal
+                    modalContent.innerHTML = `
+                        <span class="close-button" onclick="closeModal()">&#10006;</span>
+                        <button class="fullscreen-button" onclick="openFullscreen()">Ver en Pantalla Completa</button>
+                        <iframe src="${song.pdf}" type="application/pdf"></iframe>
+                    `;
+                } else if (song.image) {
+                    // Si hay una imagen, la cargamos en el modal
+                    modalContent.innerHTML = `
+                        <span class="close-button" onclick="closeModal()">&#10006;</span>
+                        <img src="${song.image}" alt="Imagen de ${song.name}">
+                    `;
+                }
 
-            song.textContent = song.textContent.replace(chordsRegex, match => {
-                const noteMatch = match.match(/[A-G](#|b)?/); // Extraer nota principal
-                if (!noteMatch) return match; // Si no hay nota, devolver sin cambios
+                modal.style.display = 'flex';
+                // Ocultar el banner cuando se abre el modal
+                document.querySelector('.navbar').style.display = 'none';
 
-                const note = noteMatch[0];
-                const suffix = match.slice(note.length); // Extraer sufijo
-                const allNotes = [
-                    "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
-                ]; // Escala cromática
+                // Mostrar el botón de salida de pantalla completa
+                exitButton.style.display = 'block';
 
-                const currentIndex = allNotes.indexOf(note);
-                if (currentIndex === -1) return match; // Si no se encuentra, devolver sin cambios
+                // Agregar el evento de doble clic para salir de pantalla completa
+                modalContent.addEventListener('dblclick', closeFullscreen);
+            }
 
-                const newIndex = (currentIndex + steps + allNotes.length) % allNotes.length; // Nuevo índice
-                return allNotes[newIndex] + suffix; // Reconstruir acorde
+            window.closeModal = function() {
+                const modal = document.getElementById('songModal');
+                modal.style.display = 'none';
+                // Mostrar el banner cuando se cierra el modal
+                document.querySelector('.navbar').style.display = 'flex';
+                // Ocultar el botón de salida de pantalla completa
+                const exitButton = modal.querySelector('.exit-fullscreen');
+                exitButton.style.display = 'none';
+            };
+
+            // Función para pantalla completa
+            window.openFullscreen = function() {
+                const iframe = document.querySelector('.modal-content iframe');
+                const img = document.querySelector('.modal-content img');
+                
+                if (iframe) {
+                    if (iframe.requestFullscreen) {
+                        iframe.requestFullscreen();
+                    } else if (iframe.mozRequestFullScreen) { // Firefox
+                        iframe.mozRequestFullScreen();
+                    } else if (iframe.webkitRequestFullscreen) { // Chrome, Safari y Opera
+                        iframe.webkitRequestFullscreen();
+                    } else if (iframe.msRequestFullscreen) { // IE/Edge
+                        iframe.msRequestFullscreen();
+                    }
+                } else if (img) {
+                    if (img.requestFullscreen) {
+                        img.requestFullscreen();
+                    } else if (img.mozRequestFullScreen) { // Firefox
+                        img.mozRequestFullScreen();
+                    } else if (img.webkitRequestFullscreen) { // Chrome, Safari, Opera
+                        img.webkitRequestFullscreen();
+                    } else if (img.msRequestFullscreen) { // IE/Edge
+                        img.msRequestFullscreen();
+                    }
+                }
+            };
+
+            // Función para salir de pantalla completa
+            window.closeFullscreen = function() {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) { // Firefox
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) { // Chrome, Safari, Opera
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { // IE/Edge
+                    document.msExitFullscreen();
+                }
+            };
+
+            // Detectar la tecla "Esc" para salir de pantalla completa
+            window.addEventListener('keydown', (e) => {
+                if (e.key === "Escape") {
+                    closeFullscreen();
+                }
             });
-        }
 
-        // Filtrar canciones
-        function searchSongs() {
-            const searchQuery = document.getElementById('search-bar').value.toLowerCase();
+            function filterSongs() {
+                const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+                const songLists = document.querySelectorAll('.song-list');
+                songLists.forEach(list => {
+                    const items = list.getElementsByTagName('li');
+                    Array.from(items).forEach(item => {
+                        const songName = item.textContent.toLowerCase();
+                        if (songName.includes(searchQuery)) {
+                            item.style.display = '';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            }
 
-            // Limpiar las listas de canciones existentes antes de mostrar los resultados de la búsqueda
-            document.querySelectorAll('.song-list').forEach(list => list.innerHTML = '');
+            function clearSearch() {
+                document.getElementById('searchInput').value = '';
+                filterSongs(); // Limpiar los resultados
+            }
 
-            // Filtrar canciones que coincidan con la búsqueda
-            const songs = allSongs.filter(song => {
-                const songName = song.name.toLowerCase();
-                const songDetails = song.details.toLowerCase();
-                return songName.includes(searchQuery) || songDetails.includes(searchQuery);
-            });
+            createSongList('Alabanzas', 'alabanzasList');
+            createSongList('Adoraciones', 'adoracionesList');
 
-            // Agregar las canciones filtradas a las listas
-            songs.forEach(song => {
-                addSong(song.category, song.name, song.details);
-            });
-        }
-
-        // Cargar las canciones al cargar la página
-        window.onload = function() {
-            loadSongs();
-        };
+            document.getElementById('searchInput').addEventListener('input', filterSongs);
+            document.querySelector('.clear-search').addEventListener('click', clearSearch);
+        });
     </script>
 </head>
 <body>
-    <!-- Menú de navegación -->
+
+    <!-- Barra de navegación -->
     <div class="navbar">
-        <a href="https://mcsanpablo.github.io/equipodemusicasp/">Inicio</a>
-        <a href="https://mcsanpablo.github.io/listas/">Listas</a>
+        <a href="#">Inicio</a>
+        <a href="#">Alabanzas</a>
+        <a href="#">Adoraciones</a>
     </div>
 
-    <!-- Título -->
     <h1>Lista de Canciones</h1>
 
-    <div style="text-align: center;">
-        <input type="text" id="search-bar" placeholder="Buscar canciones..." onkeyup="searchSongs()">
-        <button class="add-song-button" onclick="openAddSongForm()">Agregar Canción</button>
+    <div class="search-container">
+        <input id="searchInput" type="text" placeholder="Buscar canción..." />
+        <span class="clear-search" onclick="clearSearch()">&#10006;</span>
     </div>
 
-    <!-- Contenedor de categorías de canciones -->
-    <div class="category-container">
-        <div class="category">
+    <div class="song-container">
+        <div class="song-category">
             <h2>Alabanzas</h2>
-            <ul class="song-list" id="Alabanzas"></ul>
+            <ul id="alabanzasList" class="song-list"></ul>
         </div>
-        <div class="category">
+
+        <div class="song-category">
             <h2>Adoraciones</h2>
-            <ul class="song-list" id="Adoraciones"></ul>
-        </div>
-        <div class="category">
-            <h2>Ofrendas</h2>
-            <ul class="song-list" id="Ofrendas"></ul>
+            <ul id="adoracionesList" class="song-list"></ul>
         </div>
     </div>
+
+    <!-- Modal para mostrar la imagen o PDF -->
+    <div id="songModal" class="modal">
+        <div class="modal-content">
+            <span class="exit-fullscreen" onclick="closeFullscreen()">&#10006;</span>
+            <!-- Contenido cargado dinámicamente -->
+        </div>
+    </div>
+
 </body>
 </html>
